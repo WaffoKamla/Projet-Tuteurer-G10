@@ -1,67 +1,46 @@
-import React from 'react';
-import { StyleSheet, Text, View, ImageBackground, TouchableOpacity } from 'react-native';
+import React , { useState, useEffect } from 'react';
+import { StatusBar } from 'react-native';
+import Tiktokinterface from '././src/screens/splashscreen';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-const WelcomePage = ({ navigation }) => {
-  return (
-    <ImageBackground source={require('./assets/hero2.jpg')} style={styles.container}>
-      <View style={[styles.content, styles.contentBottom]}>
-        <Text style={styles.title}>Prêt pour un déménagement en toute tranquillité ?</Text>
-        <Text style={styles.subtitle}>Laissez-nous vous guider à travers le processus, de A à Z.</Text>
-        <TouchableOpacity
-          style={[styles.button, styles.primaryButton]}
-          onPress={() => navigation.navigate('Services')}
-        >
-          <Text style={[styles.buttonText, styles.primaryButtonText]}>C'est parti !</Text>
-        </TouchableOpacity>
-      </View>
-    </ImageBackground>
+import BottomTabs from './././././src/navigation/BottomTab';
+import LoginScreen from './src/screens/login';
+import RegisterScreen from './src/screens/signup';
+import PackagingServicePage from './src/screens/lire_plus';
+const Stack = createNativeStackNavigator();
+
+const App = () => {
+
+    const [splashScreenVisible, setSplashScreenVisible] = useState(true);
+
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setSplashScreenVisible(false);
+      }, 5000); // Show splash screen for 3 seconds
+  
+      return () => clearTimeout(timer);
+    }, []);
+  
+
+  return ( 
+    <>
+      <StatusBar />
+      <NavigationContainer>
+        {splashScreenVisible ? (
+          <Tiktokinterface navigation={null} />
+        ) : (
+  
+     <Stack.Navigator initialRouteName="LoginScreen" screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="HomeScreen" component={BottomTabs} />
+        <Stack.Screen name="PackagingServicePage" component={PackagingServicePage} />
+        <Stack.Screen name="LoginScreen" component={LoginScreen} />
+        <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
+      </Stack.Navigator>
+      )}
+  </NavigationContainer>
+  </>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    resizeMode: 'cover',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  content: {
-    backgroundColor: 'rgba(255, 255, 255, 0.6)',
-    padding: 30,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  contentBottom: {
-    marginBottom: 80,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#0077B6',
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 18,
-    color: '#333',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  button: {
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 6,
-  },
-  primaryButton: {
-    backgroundColor: '#0077B6',
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  primaryButtonText: {
-    color: '#fff',
-  },
-});
-
-export default WelcomePage;
+export default App;
