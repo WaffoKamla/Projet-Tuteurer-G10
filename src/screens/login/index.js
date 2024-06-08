@@ -1,7 +1,29 @@
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, Alert } from 'react-native';
+import { login } from '../../../api';
 
-const LoginScreen = ({navigation}) => {
+const LoginScreen = ({ navigation }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('Erreur', 'Veuillez remplir tous les champs.');
+      return;
+    }
+
+    try {
+      console.log('Tentative de connexion avec:', { email, password });
+      const data = await login(email, password);
+      Alert.alert('Succès', 'Connexion réussie.');
+      console.log('Connexion réussie:', data);
+      navigation.navigate('HomeScreen');
+    } catch (error) {
+      Alert.alert('Erreur', error.message || 'Erreur lors de la connexion.');
+      console.error('Erreur de connexion:', error.message || error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.logoContainer}>
@@ -12,14 +34,18 @@ const LoginScreen = ({navigation}) => {
           style={styles.input}
           placeholder="Email"
           placeholderTextColor="#CCCCCC"
+          value={email}
+          onChangeText={setEmail}
         />
         <TextInput
           style={styles.input}
           placeholder="Mot de passe"
           placeholderTextColor="#CCCCCC"
           secureTextEntry
+          value={password}
+          onChangeText={setPassword}
         />
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('HomeScreen')}>
+        <TouchableOpacity style={styles.button} onPress={handleLogin}>
           <Text style={styles.buttonText}>Connexion</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('RegisterScreen')}>
@@ -61,7 +87,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#004d40',
     borderRadius: 8,
     paddingVertical: 12,
-    justifyContent:'center',
     marginVertical: 10,
     alignItems: 'center',
   },

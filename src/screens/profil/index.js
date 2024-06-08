@@ -1,121 +1,112 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity, TextInput, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, TextInput, Image, Alert } from 'react-native';
+import { getUserDetails, updateUserDetails, logout } from '../../../api'; // Assurez-vous que ces fonctions sont définies dans votre fichier API
 
-const UserProfile = () => {
+const UserProfile = ({ navigation }) => {
   const [user, setUser] = useState({
-    fullName: 'John Doe',
-    email: 'johndoe@example.com',
-    phone: '555-1234',
-    address: '123 Main St, Anytown USA',
+    fullName: '',
+    email: '',
+    phone: '',
+    address: '',
   });
 
-  const [moves, setMoves] = useState([
-    { date: '2022-01-15', services: ['Packing', 'Transport', 'Unloading'], rating: 4, comment: 'Great service!' },
-    { date: '2020-06-01', services: ['Transport', 'Unloading'], rating: 3, comment: 'Could have been better' },
-  ]);
+  const [isEditing, setIsEditing] = useState(false);
 
-  const [paymentMethods, setPaymentMethods] = useState([
-    { type: 'Visa', number: '1234' },
-    { type: 'Mastercard', number: '5678' },
-  ]);
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      try {
+        const userDetails = await getUserDetails();
+        setUser(userDetails);
+      } catch (error) {
+        console.error('Erreur lors de la récupération des détails de l\'utilisateur:', error);
+        Alert.alert('Erreur', 'Impossible de récupérer les détails de l\'utilisateur.');
+      }
+    };
+    fetchUserDetails();
+  }, []);
 
-  const [preferences, setPreferences] = useState({
-    housing: 'Apartment',
-    size: '2 Bedroom',
-    specialRequirements: ['Fragile items', 'Pet transport'],
-    additionalServices: ['Packing', 'Insurance'],
-  });
+  const handleSave = async () => {
+    try {
+      await updateUserDetails(user);
+      Alert.alert('Succès', 'Informations mises à jour avec succès.');
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour des détails de l\'utilisateur:', error);
+      Alert.alert('Erreur', 'Impossible de mettre à jour les détails de l\'utilisateur.');
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigation.navigate('Login'); // Assurez-vous que cette route existe
+    } catch (error) {
+      console.error('Erreur lors de la déconnexion:', error);
+      Alert.alert('Erreur', 'Impossible de se déconnecter.');
+    }
+  };
 
   return (
-
     <View style={styles.container}>
       <View style={styles.logoContainer}>
         <Image source={require('../../../assets/logo.jpg')} style={styles.logo} />
       </View>
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Image source={require('../../../assets/girl1.png')} style={styles.profileImage} />
-        <Text style={styles.headerText}>Daniola31🤓</Text>
-      </View>
+      <ScrollView style={styles.container}>
+        <View style={styles.header}>
+          <Image source={require('../../../assets/girl1.png')} style={styles.profileImage} />
+          <Text style={styles.headerText}>{user.fullName}</Text>
+        </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Personal Information</Text>
-        <View style={styles.infoItem}>
-          <Text style={styles.label}>Full Name:</Text>
-          <Text style={styles.value}>{user.fullName}</Text>
-        </View>
-        <View style={styles.infoItem}>
-          <Text style={styles.label}>Email:</Text>
-          <Text style={styles.value}>{user.email}</Text>
-        </View>
-        <View style={styles.infoItem}>
-          <Text style={styles.label}>Phone:</Text>
-          <Text style={styles.value}>{user.phone}</Text>
-        </View>
-        <View style={styles.infoItem}>
-          <Text style={styles.label}>Address:</Text>
-          <Text style={styles.value}>{user.address}</Text>
-        </View>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Move History</Text>
-        {moves.map((move, index) => (
-          <View key={index} style={styles.moveItem}>
-            <View style={styles.moveHeader}>
-              <Text style={styles.label}>Date:</Text>
-              <Text style={styles.value}>{move.date}</Text>
-            </View>
-            <View style={styles.moveDetails}>
-              <Text style={styles.label}>Services:</Text>
-              <Text style={styles.value}>{move.services.join(', ')}</Text>
-              <Text style={styles.label}>Rating:</Text>
-              <Text style={styles.value}>{move.rating}/5</Text>
-              <Text style={styles.label}>Comment:</Text>
-              <Text style={styles.value}>{move.comment}</Text>
-            </View>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Informations Personnelles</Text>
+          <View style={styles.infoItem}>
+            <Text style={styles.label}>Nom Complet:</Text>
+            <Text style={styles.value}>{user.fullName}</Text>
           </View>
-        ))}
-      </View>
+          <View style={styles.infoItem}>
+            <Text style={styles.label}>Email:</Text>
+            <Text style={styles.value}>{user.email}</Text>
+          </View>
+          <View style={styles.infoItem}>
+            <Text style={styles.label}>Téléphone:</Text>
+            {isEditing ? (
+              <TextInput
+                style={styles.input}
+                value={user.phone}
+                onChangeText={(text) => setUser({ ...user, phone: text })}
+              />
+            ) : (
+              <Text style={styles.value}>{user.phone}</Text>
+            )}
+          </View>
+          <View style={styles.infoItem}>
+            <Text style={styles.label}>Adresse:</Text>
+            {isEditing ? (
+              <TextInput
+                style={styles.input}
+                value={user.address}
+                onChangeText={(text) => setUser({ ...user, address: text })}
+              />
+            ) : (
+              <Text style={styles.value}>{user.address}</Text>
+            )}
+          </View>
+        </View>
 
-      
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Preferences</Text>
-        <View style={styles.infoItem}>
-          <Text style={styles.label}>Housing Type:</Text>
-          <Text style={styles.value}>{preferences.housing}</Text>
-        </View>
-        <View style={styles.infoItem}>
-          <Text style={styles.label}>Size:</Text>
-          <Text style={styles.value}>{preferences.size}</Text>
-        </View>
-        <View style={styles.infoItem}>
-          <Text style={styles.label}>Special Requirements:</Text>
-          <Text style={styles.value}>{preferences.specialRequirements.join(', ')}</Text>
-        </View>
-        <View style={styles.infoItem}>
-          <Text style={styles.label}>Additional Services:</Text>
-          <Text style={styles.value}>{preferences.additionalServices.join(', ')}</Text>
-        </View>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Account Management</Text>
-        <TouchableOpacity style={[styles.button, { backgroundColor: '#4CAF50' }]}>
-          <Text style={styles.buttonText}>Update Personal Information</Text>
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: '#4CAF50' }]}
+          onPress={isEditing ? handleSave : () => setIsEditing(true)}
+        >
+          <Text style={styles.buttonText}>{isEditing ? 'Enregistrer' : 'Modifier'}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, { backgroundColor: '#2196F3' }]}>
-          <Text style={styles.buttonText}>Update Payment Information</Text>
+        
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: '#E91E63' }]}
+          onPress={handleLogout}
+        >
+          <Text style={styles.buttonText}>Déconnexion</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, { backgroundColor: '#9C27B0' }]}>
-          <Text style={styles.buttonText}>View Move History</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, { backgroundColor: '#E91E63' }]}>
-          <Text style={styles.buttonText}>Leave Feedback</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+      </ScrollView>
     </View>
   );
 };
@@ -179,43 +170,31 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
   },
-  moveItem: {
+  input: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderColor: '#004d40',
     borderWidth: 1,
-    borderColor: '#ccc',
     borderRadius: 8,
-    padding: 10,
-    marginBottom: 10,
-  },
-  moveHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 5,
-  },
-  moveDetails: {
-    borderTopWidth: 1,
-    borderColor: '#ccc',
-    paddingTop: 5,
-  },
-  paymentItem: {
-    borderWidth: 1,
+    padding: 8,
+    fontSize: 16,
+    color: '#333333',
   },
   button: {
     backgroundColor: '#007AFF',
     borderRadius: 8,
     paddingVertical: 12,
     paddingHorizontal: 16,
-    alignItems:'center',
-    justifyContent:'center',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 10,
-    },
-    buttonText: {
+  },
+  buttonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
-    alignItems:'center',
-    justifyContent:'center',
-    },
-    
+    textAlign: 'center',
+  },
 });
-export default UserProfile;
 
+export default UserProfile;

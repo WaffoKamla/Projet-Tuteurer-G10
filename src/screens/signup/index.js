@@ -1,5 +1,6 @@
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet } from 'react-native';
+// /path/to/your/RegisterScreen.js
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, Alert } from 'react-native';
 import { signup } from '../../../api';
 
 const RegisterScreen = ({ navigation }) => {
@@ -8,22 +9,19 @@ const RegisterScreen = ({ navigation }) => {
   const [prenom, setPrenom] = useState('');
   const [nom, setNom] = useState('');
 
-  const hasLetter = /[a-zA-Z]/.test(password);
-  const hasNumber = /[0-9]/.test(password);
-  const isLongEnough = password.length > 8;
-
   const handleSignup = async () => {
     try {
-      console.log('Tentative d\'inscription avec:', { email, password, nom, prenom  });
-      const data = await signup(email, password, nom, prenom );
+      console.log('Tentative d\'inscription avec:', { email, password, nom, prenom });
+      const data = await signup(email, password, nom, prenom);
       Alert.alert('Succès', data.message);
       console.log('Inscription réussie:', data);
-      navigation.navigate('Login');
+      navigation.navigate('HomeScreen');
     } catch (error) {
       Alert.alert('Erreur', error.message);
       console.error('Erreur d\'inscription:', error.message);
     }
   };
+
   return (
     <View style={styles.container}>
       <View style={styles.logoContainer}>
@@ -34,11 +32,15 @@ const RegisterScreen = ({ navigation }) => {
           style={styles.input}
           placeholder="Nom"
           placeholderTextColor="#CCCCCC"
+          value={nom}
+          onChangeText={setNom}
         />
         <TextInput
           style={styles.input}
           placeholder="Prénom"
           placeholderTextColor="#CCCCCC"
+          value={prenom}
+          onChangeText={setPrenom}
         />
         <TextInput
           style={styles.input}
@@ -51,12 +53,14 @@ const RegisterScreen = ({ navigation }) => {
           style={styles.input}
           placeholder="Mot de passe"
           placeholderTextColor="#CCCCCC"
+          value={password}
+          onChangeText={setPassword}
           secureTextEntry
         />
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={handleSignup}>
           <Text style={styles.buttonText}>S'inscrire</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Login')}>
           <Text style={styles.buttonText}>Connexion</Text>
         </TouchableOpacity>
       </View>

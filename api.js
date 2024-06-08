@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const API_BASE_URL = 'http://192.168.1.114:3000';
 
-export const signup = async (email, password, sexe, age, poid) => {
+export const signup = async (email, password, nom, prenom) => {
     try {
         console.log('Demande d\'inscription:', { email, password, nom, prenom });
         const response = await axios.post(`${API_BASE_URL}/auth/signup`, {email, password, nom, prenom });

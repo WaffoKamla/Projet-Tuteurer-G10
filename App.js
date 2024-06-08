@@ -8,6 +8,8 @@ import BottomTabs from './././././src/navigation/BottomTab';
 import LoginScreen from './src/screens/login';
 import RegisterScreen from './src/screens/signup';
 import PackagingServicePage from './src/screens/lire_plus';
+import HomeScreen from './src/screens/home/index';
+import ProfilScreen from './src/screens/home/index';
 const Stack = createNativeStackNavigator();
 
 const App = () => {
@@ -36,6 +38,8 @@ const App = () => {
         <Stack.Screen name="PackagingServicePage" component={PackagingServicePage} />
         <Stack.Screen name="LoginScreen" component={LoginScreen} />
         <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Profil" component={ProfilScreen} />
       </Stack.Navigator>
       )}
   </NavigationContainer>
