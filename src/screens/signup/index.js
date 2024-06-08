@@ -1,7 +1,29 @@
 import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { signup } from '../../../api';
 
-const RegisterScreen = () => {
+const RegisterScreen = ({ navigation }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [prenom, setPrenom] = useState('');
+  const [nom, setNom] = useState('');
+
+  const hasLetter = /[a-zA-Z]/.test(password);
+  const hasNumber = /[0-9]/.test(password);
+  const isLongEnough = password.length > 8;
+
+  const handleSignup = async () => {
+    try {
+      console.log('Tentative d\'inscription avec:', { email, password, nom, prenom  });
+      const data = await signup(email, password, nom, prenom );
+      Alert.alert('Succès', data.message);
+      console.log('Inscription réussie:', data);
+      navigation.navigate('Login');
+    } catch (error) {
+      Alert.alert('Erreur', error.message);
+      console.error('Erreur d\'inscription:', error.message);
+    }
+  };
   return (
     <View style={styles.container}>
       <View style={styles.logoContainer}>
@@ -22,6 +44,8 @@ const RegisterScreen = () => {
           style={styles.input}
           placeholder="Email"
           placeholderTextColor="#CCCCCC"
+          value={email}
+          onChangeText={setEmail}
         />
         <TextInput
           style={styles.input}
