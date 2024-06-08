@@ -24,18 +24,23 @@ db.connect((err) => {
   console.log('MySQL connecté...');
 });
 
+// Configuration du store de session MySQL
+const sessionStore = new MySQLStore({}, db);
+
 // Middlewares
 app.use(cors({
-  origin: 'http://192.168.1.114:3000', 
+  origin: 'http://192.168.1.114:3000',
   credentials: true
 }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({
+  key: 'session_cookie_name',
   secret: 'clé_secrète',
+  store: sessionStore,
   resave: false,
-  saveUninitialized: true,
-  cookie: { secure: false }
+  saveUninitialized: false,
+  cookie: { secure: false } // En production, utilisez `secure: true` et configurez HTTPS
 }));
 
 // Route de test
@@ -52,10 +57,10 @@ app.post('/auth/signup', async (req, res) => {
     return res.status(400).json({ message: 'Tous les champs sont requis.' });
   }
 
-  console.log('Création de l\'utilisateur avec', { email, password, nom, prenom});
+  console.log('Création de l\'utilisateur avec', { email, password, nom, prenom });
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const newUser = { email, password: hashedPassword, nom, prenom};
+  const newUser = { email, password: hashedPassword, nom, prenom };
 
   const query = 'INSERT INTO users SET ?';
   db.query(query, newUser, (err, result) => {
@@ -119,7 +124,7 @@ app.get('/auth/user', (req, res) => {
   }
 
   console.log('Récupération des détails de l\'utilisateur pour', req.session.user.id);
-  const query = 'SELECT email, sexe, age, poid FROM users WHERE id = ?';
+  const query = 'SELECT email, nom, prenom, phone, address FROM users WHERE id = ?';
   db.query(query, [req.session.user.id], (err, results) => {
     if (err) {
       console.error('Erreur lors de la récupération des données utilisateur:', err);
@@ -137,11 +142,11 @@ app.put('/auth/user', (req, res) => {
     return res.status(401).json({ message: 'Utilisateur non authentifié.' });
   }
 
-  const { email, sexe, age, poid } = req.body;
-  console.log('Mise à jour des détails de l\'utilisateur pour', req.session.user.id, 'avec', { email, sexe, age, poid });
-  const query = 'UPDATE users SET email = ?, sexe = ?, age = ?, poid = ? WHERE id = ?';
+  const { email, phone, address } = req.body;
+  console.log('Mise à jour des détails de l\'utilisateur pour', req.session.user.id, 'avec', { email, phone, address });
+  const query = 'UPDATE users SET email = ?, phone = ?, address = ? WHERE id = ?';
 
-  db.query(query, [email, sexe, age, poid, req.session.user.id], (err, result) => {
+  db.query(query, [email, phone, address, req.session.user.id], (err, result) => {
     if (err) {
       console.error('Erreur lors de la mise à jour des données utilisateur:', err);
       return res.status(500).json({ message: 'Erreur lors de la mise à jour des données utilisateur.', error: err });
@@ -160,6 +165,7 @@ app.post('/auth/logout', (req, res) => {
         console.error('Erreur lors de la destruction de la session:', err);
         return res.status(500).json({ message: 'Erreur lors de la déconnexion.' });
       }
+      res.clearCookie('session_cookie_name'); // Supprime le cookie de session
       res.status(200).json({ message: 'Déconnexion réussie.' });
     });
   } else {
