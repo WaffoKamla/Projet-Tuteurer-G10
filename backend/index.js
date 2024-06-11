@@ -5,7 +5,10 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const session = require('express-session');
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 47cfcbd36c60d86ba466d097b4c61b1700db1107
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -26,11 +29,19 @@ db.connect((err) => {
 });
 
 // Configuration du store de session MySQL
+<<<<<<< HEAD
 const sessionStore = new MySQLStore({}, db);  
 
 // Middlewares
 app.use(cors({
   origin: 'http://10.0.2.16:3000',
+=======
+const sessionStore = new MySQLStore({}, db);
+
+// Middlewares
+app.use(cors({
+  origin: 'http://192.168.1.114:3000',
+>>>>>>> 47cfcbd36c60d86ba466d097b4c61b1700db1107
   credentials: true
 }));
 app.use(bodyParser.json());
@@ -61,10 +72,17 @@ app.post('/auth/signup', async (req, res) => {
   console.log('Création de l\'utilisateur avec', { email, password, nom, prenom });
   const hashedPassword = await bcrypt.hash(password, 10);
 
+<<<<<<< HEAD
   // const newUser = { email, password: hashedPassword, nom, prenom };
 
   const query = `INSERT INTO connexion (email, password, nom, prenom) VALUES (?,?,?,?)`;
   db.query(query, [email, hashedPassword, nom, prenom], (err, result) => {
+=======
+  const newUser = { email, password: hashedPassword, nom, prenom };
+
+  const query = 'INSERT INTO users SET ?';
+  db.query(query, newUser, (err, result) => {
+>>>>>>> 47cfcbd36c60d86ba466d097b4c61b1700db1107
     if (err) {
       console.error('Inscription échouée:', err);
       return res.status(500).json({ message: 'Erreur lors de la création de l\'utilisateur.', error: err });

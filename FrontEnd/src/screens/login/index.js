@@ -1,3 +1,4 @@
+<<<<<<< HEAD:FrontEnd/src/screens/login/index.js
 import React, {useState} from 'react';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet } from 'react-native';
@@ -24,6 +25,34 @@ const LoginScreen = ({navigation}) => {
         Alert.alert('Erreur', 'Échec de la connexion');
     }
 };
+=======
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet, Alert } from 'react-native';
+import { login } from '../../../api';
+
+const LoginScreen = ({ navigation }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('Erreur', 'Veuillez remplir tous les champs.');
+      return;
+    }
+
+    try {
+      console.log('Tentative de connexion avec:', { email, password });
+      const data = await login(email, password);
+      Alert.alert('Succès', 'Connexion réussie.');
+      console.log('Connexion réussie:', data);
+      navigation.navigate('HomeScreen');
+    } catch (error) {
+      Alert.alert('Erreur', error.message || 'Erreur lors de la connexion.');
+      console.error('Erreur de connexion:', error.message || error);
+    }
+  };
+
+>>>>>>> 47cfcbd36c60d86ba466d097b4c61b1700db1107:src/screens/login/index.js
   return (
     <View style={styles.container}>
       <View style={styles.logoContainer}>
@@ -36,6 +65,8 @@ const LoginScreen = ({navigation}) => {
           value={email}
           onChangeText={setEmail}
           placeholderTextColor="#CCCCCC"
+          value={email}
+          onChangeText={setEmail}
         />
         <TextInput
           style={styles.input}
@@ -44,8 +75,10 @@ const LoginScreen = ({navigation}) => {
           onChangeText={setPassword}
           placeholderTextColor="#CCCCCC"
           secureTextEntry
+          value={password}
+          onChangeText={setPassword}
         />
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('HomeScreen')}>
+        <TouchableOpacity style={styles.button} onPress={handleLogin}>
           <Text style={styles.buttonText}>Connexion</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('RegisterScreen')}>
@@ -87,7 +120,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#004d40',
     borderRadius: 8,
     paddingVertical: 12,
-    justifyContent:'center',
     marginVertical: 10,
     alignItems: 'center',
   },
